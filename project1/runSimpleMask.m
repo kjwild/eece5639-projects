@@ -9,7 +9,8 @@
 
 % Set run configurations
 imageDir = 'RedChair';
-mask     = 0.5*[-1 0 1];
+% mask     = 0.5*[-1 0 1];
+mask     = 0.5*[-1 1 0];
 
 
 % Read image data
@@ -26,14 +27,14 @@ dI = diff(double(I),[],3);
 fprintf('\tAbsolute pixel change, mean:    %6.2f\n',mean(abs(dI(:)),'all'));
 fprintf('\t                       median:  %6.2f\n',median(abs(dI(:)),'all'));
 fprintf('\t                       1-sigma: %6.2f\n',std(abs(dI(:)),0,'all'));
-fprintf('\tAbsolute response, mean:    %6.2f\n',mean(abs(R(:)),'all'));
-fprintf('\t                   median:  %6.2f\n',median(abs(R(:)),'all'));
-fprintf('\t                   1-sigma: %6.2f\n',std(abs(R(:)),0,'all'));
+fprintf('\tResponse, mean:    %6.2f\n',mean(abs(R(:)),'all'));
+fprintf('\t          median:  %6.2f\n',median(abs(R(:)),'all'));
+fprintf('\t          1-sigma: %6.2f\n',std(abs(R(:)),0,'all'));
 
 
 % Set threshold
-threshold = median(abs(R(:)),'all') + [-1 1]*std(abs(R(:)),0,'all');
-% threshold = std(abs(dI(:)),0,'all');
+% threshold = median(R(:),'all') + [-1 1]*std(R(:),0,'all');
+threshold = [-inf median(R(:),'all') + std(R(:),0,'all')];
 
 
 % Plot results
