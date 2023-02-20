@@ -101,8 +101,8 @@ for i = frame
     idx = ~cellfun(@isempty,montageInput);
     montage(montageInput(idx),'Size',[1 length(showOutput)]);
     % -- Auxiliary
-    title(['Frame ' num2str(i)]);
     if doAnimation
+        title(['Frame ' num2str(i)]);
         drawnow();
     elseif (i ~= frame(end))
         fig{i == frame} = figure;
