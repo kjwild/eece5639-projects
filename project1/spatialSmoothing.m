@@ -34,7 +34,7 @@ for j = jrange
     % - Get image segments
     vertdx = (i - edgeSize):(i + edgeSize);
     horzdx = (j - edgeSize):(j + edgeSize);
-    imageData = B(vertdx,horzdx,:);
+    imageData = double(B(vertdx,horzdx,:));
     % - Apply filter, vectorized across time
     if doMedian
         B(i,j,:) = median(imageData,[1 2]);
