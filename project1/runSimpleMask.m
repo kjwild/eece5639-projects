@@ -53,6 +53,10 @@ x = xlabel(['(a)' repmat(' ',1,38) '(b)' repmat(' ',1,38) '(c)']);
     x.FontSize = 28;
     x.HorizontalAlignment = 'left';
     x.Position = [295 490];
+% - Frame 60 (convergence as motion slows down)
+plotFilterResult(I,Run1.R,[],60,1);
+plotFilterResult(I,Run1.R,[],60,2);
+plotFilterResult(I,Run1.R,Run1.median + [-1 1]*Run1.sigma,60,3);
 
 
 % Second run: 0.25*[1 1 0 -1 -1]
