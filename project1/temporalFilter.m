@@ -4,7 +4,7 @@ function R = temporalFilter(I,h)
 %   the third dimension of an array of matrices I.
 %
 %   Contact:        wu.kevi@northeastern.edu
-%   Last updated:   February 13, 2023
+%   Last updated:   February 20, 2023
 
 
 % Size of boundary to ignore
@@ -20,7 +20,7 @@ mask = repmat(reshape(h,1,1,[]),size(I,1),size(I,2));
 R = zeros(size(I));
 for i = (1 + bufferSize):(size(I,3) - bufferSize)
     % - Get image segment
-    imageData = I(:,:,(i - 1):(i + 1));
+    imageData = I(:,:,(i - bufferSize):(i + bufferSize));
     % - Obtain response to mask
     imageProd = mask.*double(imageData);
     R(:,:,i) = sum(imageProd,3);
