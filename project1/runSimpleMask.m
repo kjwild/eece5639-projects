@@ -7,41 +7,43 @@
 %   Last updated:   February 13, 2023
 
 
-% Set run configurations
+% Which image directory?
 imageDir = 'RedChair';
-% mask     = 0.5*[-1 0 1];
-mask     = 0.5*[-1 1 0];
-
-
-% Read image data
 I = readImageData(imageDir);
 
 
-% Compute response
-R = temporalFilter(I,mask);
-
-
-% Process statistics
-disp(['# Results for ' imageDir]);
+% Statistics on absolute changes in pixel values across time (for curisoity)
 dI = diff(double(I),[],3);
-fprintf('\tAbsolute pixel change, mean:    %6.2f\n',mean(abs(dI(:)),'all'));
-fprintf('\t                       median:  %6.2f\n',median(abs(dI(:)),'all'));
-fprintf('\t                       1-sigma: %6.2f\n',std(abs(dI(:)),0,'all'));
-fprintf('\tResponse, mean:    %6.2f\n',mean(abs(R(:)),'all'));
-fprintf('\t          median:  %6.2f\n',median(abs(R(:)),'all'));
-fprintf('\t          1-sigma: %6.2f\n',std(abs(R(:)),0,'all'));
+dpixelMean   = mean(abs(dI(:)),'all');
+dpixelMedian = median(abs(dI(:)),'all');
+dpixelSigma  = std(abs(dI(:)),0,'all');
+dpixelMax    = max(abs(dI(:)),[],'all');
 
 
-% Set threshold
-% threshold = median(R(:),'all') + [-1 1]*std(R(:),0,'all');
-threshold = [-inf median(R(:),'all') + std(R(:),0,'all')];
+% First run: 0.5*[-1 0 1]
+% - Set mask
+S.mask = 0.5*[-1 0 1];
+% - Compute response
+S.R = temporalFilter(I,S.mask);
+% - Process statistics (mind the sign; it corresponds to the mask sign)
+S.mean   = mean(S.R(:),'all');
+S.median = median(S.R(:),'all');
+S.sigma  = std(S.R(:),[],'all');
+S.min    = min(S.R(:),[],'all'); % aka negative direction extreme
+S.max    = max(S.R(:),[],'all'); % aka positive direction extreme
+% - Save results
+Run1 = S;
 
 
-% Plot results
-plotFilterResult(I,R,threshold,[32 190]);
-
-
-% Adjust plot
+% Post-processing for Run 1
+% - Frame 32 (obvious motion)
+plotFilterResult(I,Run1.R,[],32,1);
+% - Response for frame 32
+plotFilterResult(I,Run1.R,[],32,2);
+% - Threshold for frame 32, in both temporal directions
+plotFilterResult(I,Run1.R,Run1.median + [-1 1]*Run1.sigma,32,3);
+% - Frame 190 motion detection from flicker noise
+plotFilterResult(I,Run1.R,Run1.median + [-1 1]*Run1.sigma,190,1:3);
 fig = gcf;
 t = title('');
 ax = gca;
@@ -51,3 +53,42 @@ x = xlabel(['(a)' repmat(' ',1,38) '(b)' repmat(' ',1,38) '(c)']);
     x.FontSize = 28;
     x.HorizontalAlignment = 'left';
     x.Position = [295 490];
+
+
+% Second run: 0.25*[1 1 0 -1 -1]
+% - Set mask
+S.mask = 0.25*[1 1 0 -1 -1];
+% - Compute response
+S.R = temporalFilter(I,S.mask);
+% - Process statistics (mind the sign; it corresponds to the mask sign)
+S.mean   = mean(S.R(:),'all');
+S.median = median(S.R(:),'all');
+S.sigma  = std(S.R(:),[],'all');
+S.min    = min(S.R(:),[],'all'); % aka negative direction extreme
+S.max    = max(S.R(:),[],'all'); % aka positive direction extreme
+% - Set threshold
+threshold = S.median + [-1 1]*S.sigma;
+% - Save results
+Run2 = S;
+% - Check Frame 32 output
+plotFilterResult(I,Run2.R,threshold,32,2);
+
+
+% Third run: 0.5*[-1 1 0]
+% - Set mask
+S.mask = 0.5*[-1 1 0];
+% - Compute response
+S.R = temporalFilter(I,S.mask);
+% - Process statistics (mind the sign; it corresponds to the mask sign)
+S.mean   = mean(S.R(:),'all');
+S.median = median(S.R(:),'all');
+S.sigma  = std(S.R(:),[],'all');
+S.min    = min(S.R(:),[],'all'); % aka negative direction extreme
+S.max    = max(S.R(:),[],'all'); % aka positive direction extreme
+% - Set threshold
+threshold = S.median + [-1 inf]*S.sigma;
+% - Save results
+Run3 = S;
+% - Check Frame 32 output
+plotFilterResult(I,Run3.R,threshold,32,2);
+plotFilterResult(I,Run3.R,threshold,32,3);
